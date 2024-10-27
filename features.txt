@@ -1,0 +1,11 @@
+
+
+reg
+login 
+forgetPassword
+
+
+
+student 
+feedback
+generate report 
