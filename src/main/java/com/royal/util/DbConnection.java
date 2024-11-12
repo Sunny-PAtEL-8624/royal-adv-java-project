@@ -9,7 +9,7 @@ public class DbConnection {
 	public static Connection getConnection()
 	{
 		Connection conn = null;
-		String dbUrl = "jdbc:mysql://localhost:3306/royal-adv-java";
+		String dbUrl = "jdbc:mysql://localhost:3306/royaladvjava";
 		String name = "root";
 		String password = "Sunny_patel_8624";
 		try {
