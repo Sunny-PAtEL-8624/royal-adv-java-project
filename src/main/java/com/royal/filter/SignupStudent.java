@@ -1,6 +1,9 @@
 package com.royal.filter;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -9,7 +12,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
-
+import com.royal.util.DbConnection;
 
 @WebFilter("/AddStudentServlet")
 public class SignupStudent implements javax.servlet.Filter {
@@ -34,57 +37,107 @@ public class SignupStudent implements javax.servlet.Filter {
 		String birthdate = request.getParameter("birthdate");
 		String aadharCard = request.getParameter("aadharcard");
 		String password = request.getParameter("password");
+		String dbEmail = "";
+		String  dbAdharCard = "";
+		boolean foundEmail = false;
+		boolean foundAdharCard = false;
+		try {
+			Connection conn = DbConnection.getConnection();
+			
+			 String sql = "SELECT * FROM student ";
+	         PreparedStatement pstmt = conn.prepareStatement(sql);
+
+
+
+
+
+	         // 5. Execute the query
+	         ResultSet rs = pstmt.executeQuery();
+	         while(rs.next()) {
+	        	 dbEmail = rs.getString("email");
+	        	 dbAdharCard = rs.getString("aadhar_card_number");
+	        	 System.out.println(dbEmail + " "+ dbAdharCard);
+	        	 if(email.equals(dbEmail))
+	        	 {
+	        		 
+	        		 foundEmail = true;
+	        	 }
+	        	 if(aadharCard.equals(dbAdharCard))
+	        	 {
+	        		 
+	        		 foundAdharCard= true;
+	        	 }
+
+	         }
+	         
+	       
+	         
+			}
+			catch(Exception e)
+			{
+				
+			}
 
 		if (firstName == null || firstName.trim().length() == 0) {
 			isValid = false;
-			request.setAttribute("firstName", "Please Enter FirstName");
+			request.setAttribute("firstNameError", "Please Enter FirstName");
 		}
 
 		if (lastName == null || lastName.trim().length() == 0) {
 			isValid = false;
-			request.setAttribute("lastName", "please Enter lastname");
+			request.setAttribute("lastNameError", "please Enter lastname");
 		}
 
-		if (email == null || !email.matches("^[a-z0-9](\\.?[a-z0-9]){5,}@g(oogle)?mail\\.com$")) {
+		if (email == null || email.matches("")) {
 			isValid = false;
-			request.setAttribute("email", "please Enter vaild email");
+			request.setAttribute("emailError", "please Enter vaild email");
 		}
 
 		if (phoneNumber == null || !phoneNumber.matches("\\d{10}")) {
 			isValid = false;
-			request.setAttribute("phoneNumber", "please enter the number");
+			request.setAttribute("phoneNumberError", "please enter the number");
 		}
 
 		if (gender == null || (!gender.equals("male") && !gender.equals("female") && !gender.equals("other"))) {
 			isValid = false;
-			request.setAttribute("gender", "please select the gender");
+			request.setAttribute("genderError", "please select the gender");
 		}
 
 		if (address == null || address.isEmpty()) {
 			isValid = false;
-			request.setAttribute("address", "please enter the address");
+			request.setAttribute("addressError", "please enter the address");
 		}
 
 		if (birthdate == null || birthdate.isEmpty()) {
 			isValid = false;
-			request.setAttribute("birthdate", "please enter the DOB");
+			request.setAttribute("birthdateError", "please enter the DOB");
 		}
 
 		if (aadharCard == null || !aadharCard.matches("\\d{12}")) {
 			isValid = false;
-			request.setAttribute("aadharCard", "please enter the addarcard number");
+			request.setAttribute("aadharCardError", "please enter the addarcard number");
 		}
 		if(password == null || password.trim().isEmpty()) {
 			isValid = false;
-			request.setAttribute("password", "please enter the password in 8 number");
+			request.setAttribute("passwordError", "please enter the password in 8 number");
 		}
 
+		if(foundEmail)
+		{
+			request.setAttribute("emailExistsError", "Email Is Already Exist");
+			isValid = false;
+		}
+		if(foundAdharCard)
+		{
+			request.setAttribute("aadharExistsError", "Aadhar-Number Is Already Exist");
+			isValid = false;
+		}
 		if (isValid) {
 			// back
 			chain.doFilter(request, response);
 		} else {
 			// forward
-			request.getRequestDispatcher("addstudent.jsp").forward(request, response);
+			request.getRequestDispatcher("signup.jsp").forward(request, response);
 		}
 
 		// Continue the filter chain if validation passes
